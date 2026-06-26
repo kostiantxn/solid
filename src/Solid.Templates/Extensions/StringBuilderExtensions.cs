@@ -14,9 +14,6 @@ internal static class StringBuilderExtensions
         /// </summary>
         public unsafe void Append(ReadOnlySpan<char> span)
         {
-            if (span.IsEmpty)
-                return;
-
             fixed (char* pointer = span)
                 self.Append(pointer, span.Length);
         }

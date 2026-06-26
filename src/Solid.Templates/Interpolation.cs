@@ -285,7 +285,7 @@ public partial class Code
             _conditionals.Handle(@if, out var inserted);
 
             // If the inserted conditional is already done and `false` (i.e., this is a nested
-            // `if` statement inside a `false` branch, which can never be `true`), then there is
+            // `If` statement inside a `false` branch, which can never be `true`), then there is
             // nothing we need to trim since neither preceding nor subsequent literals wouldn't
             // have been appended.
             if (inserted.Done is not false)
@@ -318,7 +318,7 @@ public partial class Code
             _conditionals.Handle(end, out var removed);
 
             // If the removed conditional is already done and `false` (i.e., this is a nested
-            // `if` statement inside a `false` branch, which can never be `true`), then there is
+            // `If` statement inside a `false` branch, which can never be `true`), then there is
             // nothing we need to trim since neither preceding nor subsequent literals wouldn't
             // have been appended.
             if (removed.Done is false)

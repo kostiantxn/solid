@@ -10,50 +10,16 @@ public static class CodeExtensions
         /// <summary>
         ///     Joins items in the provided list using the specified separator.
         /// </summary>
-        public Code Join<T, M>(List<T> items, Func<T, M> select, string separator = ", ") =>
-            code.Join(items, where: static _ => true, select: select, separator: separator);
+        public Code Join<T>(IEnumerable<T> items, string separator = ", ") =>
+            code.Join(items, static (code, item) => code.Append(item), separator);
 
-        /// <summary>
-        ///     Joins items in the provided filtered list using the specified separator.
-        /// </summary>
-        public Code Join<T, M>(List<T> items, Func<T, bool> where, Func<T, M> select, string separator = ", ")
+        /// <inheritdoc cref="Join{T}(Code, IEnumerable{T}, string)"/>
+        public Code Join<T>(IEnumerable<T> items, Action<Code, T> append, string separator = ", ")
         {
             var first = true;
 
             foreach (var item in items)
             {
-                if (!where(item))
-                    continue;
-
-                if (first)
-                    first = false;
-                else
-                    code.Append(separator);
-
-                code.Append(select(item));
-            }
-
-            return code;
-        }
-
-        /// <summary>
-        ///     Joins items in the provided list using the specified separator.
-        /// </summary>
-        public Code Join<T>(List<T> items, Action<Code, T> append, string separator = ", ") =>
-            code.Join(items, where: static _ => true, append, separator);
-
-        /// <summary>
-        ///     Joins items in the provided filtered list using the specified separator.
-        /// </summary>
-        public Code Join<T>(List<T> items, Func<T, bool> where, Action<Code, T> append, string separator = ", ")
-        {
-            var first = true;
-
-            foreach (var item in items)
-            {
-                if (!where(item))
-                    continue;
-
                 if (first)
                     first = false;
                 else

@@ -52,29 +52,6 @@ public partial class Code
     public Code Append(string? value) =>
         value is not null ? Append(value.AsMemory()) : this;
 
-    /// <inheritdoc cref="Append(object?)"/>
-    public Code Append(ReadOnlyMemory<char> value)
-    {
-        Indent.Append(ref _line);
-
-        var first = true;
-
-        foreach (var line in value.Lines())
-        {
-            if (first)
-                first = false;
-            else
-            {
-                Builder.Append(Lines.Default);
-                Indent.Append();
-            }
-
-            Builder.Append(line);
-        }
-
-        return this;
-    }
-
     /// <summary>
     ///     Appends the provided character to the code.
     /// </summary>
@@ -93,8 +70,20 @@ public partial class Code
     /// </summary>
     public Code Append(char character, int count)
     {
-        Indent.Append(ref _line);
-        Builder.Append(character, count);
+        if (count < 0)
+            throw new ArgumentOutOfRangeException(nameof(count), count, "Count must be non-negative");
+
+        if (character is '\r' or '\n')
+        {
+            while (--count >= 0)
+                Line();
+        }
+        else if (count > 0)
+        {
+            Indent.Append(ref _line);
+            Builder.Append(character, count);
+        }
+
         return this;
     }
 
@@ -159,22 +148,6 @@ public partial class Code
     }
 
     /// <inheritdoc cref="Append(byte)"/>
-    public Code Append(nint number)
-    {
-        Indent.Append(ref _line);
-        Builder.Append(number);
-        return this;
-    }
-
-    /// <inheritdoc cref="Append(byte)"/>
-    public Code Append(nuint number)
-    {
-        Indent.Append(ref _line);
-        Builder.Append(number);
-        return this;
-    }
-
-    /// <inheritdoc cref="Append(byte)"/>
     public Code Append(long number)
     {
         Indent.Append(ref _line);
@@ -211,6 +184,32 @@ public partial class Code
     {
         Indent.Append(ref _line);
         Builder.Append(number);
+        return this;
+    }
+
+    /// <inheritdoc cref="Append(object?)"/>
+    public Code Append(ReadOnlyMemory<char> value)
+    {
+        if (value.IsEmpty)
+            return this;
+
+        Indent.Append(ref _line);
+
+        var first = true;
+
+        foreach (var line in value.Lines())
+        {
+            if (first)
+                first = false;
+            else
+            {
+                Builder.Append(Lines.Default);
+                Indent.Append();
+            }
+
+            Builder.Append(line);
+        }
+
         return this;
     }
 
@@ -251,6 +250,15 @@ public partial class Code
 
         _line = true;
 
+        return this;
+    }
+
+    /// <summary>
+    ///     Indents the code by the specified delta.
+    /// </summary>
+    public Code Indented(int by)
+    {
+        Indent.Level += by;
         return this;
     }
 
