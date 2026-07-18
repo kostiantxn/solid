@@ -67,7 +67,7 @@ internal static class ContextGenerator
               {{End}}
               public partial class {{context.Name}}{{If(context.Interface is not null)}} : {{context.Interface}}{{End}}
               {
-                  private readonly static {{Types.JsonSerializerOptions}} = new();
+                  private readonly static {{Types.JsonSerializerOptions}} s_defaultOptions = new();
 
                   private const global::System.Reflection.BindingFlags InstanceMemberBindingFlags =
                       global::System.Reflection.BindingFlags.Instance |
@@ -79,7 +79,7 @@ internal static class ContextGenerator
 
     private static class Types
     {
-        public const string JsonSerializerOptions = "";
+        public const string JsonSerializerOptions = "global::System.Text.Json.JsonSerializerOptions";
     }
 
     private static class Assembly
