@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="../src/Solid.Templates.Tests/Solid.Templates.Tests.csproj" />
   <Project Path="../src/Solid.Templates/Solid.Templates.csproj" />
   <Project Path="Solid.Examples/Solid.Examples.csproj" />
 </Solution>

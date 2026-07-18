@@ -231,12 +231,13 @@ public partial class Code
     /// </exception>
     public Code Append([InterpolatedStringHandlerArgument("")] Interpolation interpolation)
     {
+        interpolation.Complete();
+
         // Check if the provided interpolation already appended to the code. This can normally
         // happen if the code was resued from the async local context.
         if (!ReferenceEquals(this, interpolation.Code))
             Append(interpolation.Code.ToString());
 
-        interpolation.Complete();
         return this;
     }
 

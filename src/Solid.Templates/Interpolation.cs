@@ -27,6 +27,7 @@ public partial class Code
         private Conditionals _conditionals = new();
 
         private bool _trim;
+        private int _until;
 
         /// <summary>
         ///     The <see cref="Code"/> instance that the handler appends code to.
@@ -70,14 +71,16 @@ public partial class Code
 
             if (_trim)
             {
-                _code._line = true;
+                var index = _code.Builder.TrimEndIndex(_code.Indent.Character, _until);
+                if (index is -1 || _code.Builder.EndsWith(Lines.Default, from: index))
+                {
+                    _code.Builder.Length = index + Lines.Default.Length;
+                    _code._line = true;
+                    _until = index + 1;
+                }
 
-                if (text.StartsWith(Lines.Crlf))
-                    _code.Append(text.AsMemory(2));
-                else if (text.StartsWith(Lines.Cr))
-                    _code.Append(text.AsMemory(1));
-                else if (text.StartsWith(Lines.Lf))
-                    _code.Append(text.AsMemory(1));
+                if (text.StartsWith(Lines.All, out var start))
+                    _code.Append(text.AsMemory(start!.Length));
                 else
                     _code.Append(text);
 
@@ -289,7 +292,7 @@ public partial class Code
             // nothing we need to trim since neither preceding nor subsequent literals wouldn't
             // have been appended.
             if (inserted.Done is not false)
-                Trim();
+                _trim = true;
         }
 
         /// <inheritdoc cref="AppendFormatted{S}(Controls.Else{S})"/>
@@ -316,7 +319,7 @@ public partial class Code
         public void AppendFormatted(End end)
         {
             _conditionals.Handle(end, out var removed);
-
+ 
             // If the removed conditional is already done and `false` (i.e., this is a nested
             // `If` statement inside a `false` branch, which can never be `true`), then there is
             // nothing we need to trim since neither preceding nor subsequent literals wouldn't
@@ -324,33 +327,29 @@ public partial class Code
             if (removed.Done is false)
                 return;
 
-            if (!_trim)
+            if (!_trim || _code.Builder.Length > 0)
             {
-                // Trim any preceding indentation before the `end`. We only need to trim it if
-                // `_trim` is `false`, that is, if any of the conditional branches were `true`,
-                // and it appended a non-empty literal. Otherwise, the preceding literal wouldn't
-                // have been appended, and thus we don't need to trim the indentation.
-                _code.Builder.TrimEnd(' ').TrimEnd(Lines.All, count: 1);
-            }
-            else if (_code.Builder.Length > 0)
-            {
-                // If we didn't trim any literals, then the whole conditional must be `false`. In
-                // this case, we need to trim the newline before the `if` (but only if the builder
-                // is not empty; otherwise, it indicates that the `if` is located at the very
-                // beginning of the interpolated string, in which case we want to trim the newline
-                // that immediately follows the `end`, which is why we keep `_trim` set to `true`).
-                _code.Builder.TrimEnd(Lines.All, count: 1);
+                var index = _code.Builder.TrimEndIndex(_code.Indent.Character, _until);
+                if (index is -1)
+                    _code.Builder.Length = 0;
+                else if (index >= _until && _code.Builder.EndsWith(Lines.Default, from: index))
+                    _code.Builder.Length = index;
+
                 _trim = false;
             }
+            else
+                _trim = true;
+
+            _until = _code.Builder.Length;
         }
 
         /// <summary>
-        ///     Appends the provided block to the code.
+        ///     Appends the provided control block to the code.
         /// </summary>
         /// <remarks>
         ///     The value is skipped if it is under a <c>false</c> conditional.
         /// </remarks>
-        public void AppendFormatted<B>(in B block, int? alignment = null, string? format = null) where B : IControl
+        public void AppendFormatted<C>(in C control, int? alignment = null, string? format = null) where C : IControl
         {
             if (!_conditionals.True)
                 return;
@@ -361,8 +360,8 @@ public partial class Code
 
             Context.Value = _code;
 
-            if (!block.Append(_code, alignment, format))
-                Trim();
+            if (!control.Append(_code, alignment, format))
+                _trim = true;
 
             Context.Value = replaced;
         }
@@ -433,25 +432,9 @@ public partial class Code
             // now completing the interpolation, there won't be any more literals to trim, so we
             // will try to trim that newline character from the end instead.
             if (_trim)
-                _code.Builder.TrimEnd(Lines.All, count: 1);
+                _code.Builder.TrimEnd(Lines.Default, count: 1);
 
             Dispose();
-        }
-
-        /// <summary>
-        ///     Trims the preceding indentation and the subsequent newline character, which can be
-        ///     used to get rid of redundant whitespaces produced by <c>end</c> control statements,
-        ///     as well as other no-op actions.
-        /// </summary>
-        private void Trim()
-        {
-            // Trim any preceding indentation.
-            _code.Builder.TrimEnd(' ');
-
-            // Trim the first newline we encounter when we append a subsequent literal. The reason
-            // we trim the subsequent newline instead of the preceding one is to address cases when
-            // the no-op control statement/action appears at the very beginning of the template.
-            _trim = true;
         }
     }
 }

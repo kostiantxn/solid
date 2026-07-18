@@ -2,9 +2,9 @@
 
 namespace Solid.Examples.NetEscapades.EnumGenerators;
 
-public static class EnumGeneratorExample
+internal static class EnumGeneratorExample
 {
-    public static void Main()
+    public static void Run()
     {
         var code = EnumGenerator.Generate(
             new EnumDefinition(
@@ -21,6 +21,6 @@ public static class EnumGeneratorExample
                 ],
                 "public"));
 
-        Console.WriteLine(code.ToString());
+        Console.WriteLine(code);
     }
 }

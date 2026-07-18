@@ -533,6 +533,84 @@ public class IfTests
     }
 
     [Fact]
+    public void Inline_False()
+    {
+        Code.Append(
+            $"""
+            a{If(false)}b{End}c
+            """)
+            .Produces(
+            $"""
+            ac
+            """);
+    }
+
+    [Fact]
+    public void Inline_False_LeadingAndTrailingWhitespace()
+    {
+        Code.Append(
+            $"""
+             a  {If(false)}   b    {End}     c 
+            """)
+            .Produces(
+            $"""
+             a       c 
+            """);
+    }
+
+    [Fact]
+    public void Inline_False_LeadingAndTrailingWhitespace_Indented()
+    {
+        Code.Indented(by: 2).Append(
+            $"""
+             a  {If(false)}   b    {End}     c 
+            """)
+            .Produces(
+            $"""
+               a       c 
+            """);
+    }
+
+    [Fact]
+    public void Inline_True()
+    {
+        Code.Append(
+            $"""
+            a{If(true)}b{End}c
+            """)
+            .Produces(
+            $"""
+            abc
+            """);
+    }
+
+    [Fact]
+    public void Inline_True_LeadingAndTrailingWhitespace()
+    {
+        Code.Append(
+            $"""
+             a  {If(true)}   b    {End}     c 
+            """)
+            .Produces(
+            $"""
+             a     b         c 
+            """);
+    }
+
+    [Fact]
+    public void Inline_True_LeadingAndTrailingWhitespace_Indented()
+    {
+        Code.Indented(by: 1).Append(
+            $"""
+             a  {If(true)}   b    {End}     c 
+            """)
+            .Produces(
+            $"""
+              a     b         c 
+            """);
+    }
+
+    [Fact]
     public void Complex()
     {
         Code.Indented(by: 2).Append(
@@ -549,9 +627,7 @@ public class IfTests
                     nope
                 {End}
                 
-                {If(true)}
-                    another
-                {End}
+                {If(true)} and {End} {If(true)}  another  {End} 
             {End}
             {If(false)}
                 
@@ -562,7 +638,12 @@ public class IfTests
                 
             {End}
             
-            bye
+            a {If(true)}
+            b
+            {End} c
+            
+            bye 
+            {If(true)} {End} {If(true)}xoxo{End}
             """)
             .Produces(
             $"""
@@ -570,9 +651,107 @@ public class IfTests
               
                           deep
                   
-                      another
+               and    another   
               
-              bye
+              a b c
+              
+              bye 
+                xoxo
+            """);
+    }
+
+    [Fact]
+    public void All()
+    {
+        Code.Indented(by: 2).Append(
+            $"""
+            {If(true)}
+            a
+            {End}
+            """)
+            .Produces(
+            $"""
+              a
+            """);
+
+        Code.Indented(by: 2).Append(
+            $"""
+            a {If(true)}
+            b
+            {End}
+            """)
+            .Produces(
+            $"""
+              a b
+            """);
+
+        Code.Indented(by: 2).Append(
+            $"""
+            a {If(true)}
+            b{End} c
+            """)
+            .Produces(
+            $"""
+              a b c
+            """);
+
+        Code.Indented(by: 2).Append(
+            $"""
+            a {If(true)}
+            b
+            {End} c
+            """)
+            .Produces(
+            $"""
+              a b c
+            """);
+
+        Code.Indented(by: 2).Append(
+            $"""
+            a {If(true)}b{End} c
+            """)
+            .Produces(
+            $"""
+              a b c
+            """);
+
+        Code.Indented(by: 2).Append(
+            $"""
+            a {If(true)}b{End} c
+            """)
+            .Produces(
+            $"""
+              a b c
+            """);
+
+        Code.Indented(by: 2).Append(
+            $"""
+            a
+            {If(true)}
+            b
+            {End}
+            c
+            """)
+            .Produces(
+            $"""
+              a
+              b
+              c
+            """);
+
+        Code.Indented(by: 2).Append(
+            $"""
+            a
+            {If(true)}
+            b
+            {End}
+            c
+            """)
+            .Produces(
+            $"""
+              a
+              b
+              c
             """);
     }
 

@@ -37,32 +37,48 @@ internal static class StringBuilderExtensions
         }
 
         /// <summary>
-        ///     Removes trailing occurrences of the specified character from the builder
-        ///     until the provided index.
+        ///     Checks whether the builder ends with the provided suffix.
         /// </summary>
-        public StringBuilder TrimEnd(char character, int until = 0)
+        public bool EndsWith(string suffix, int from)
         {
-            while (self.Length > until && self[self.Length - 1] == character)
-                self.Length--;
+            if (from + 1 < suffix.Length)
+                return false;
 
-            return self;
+            var i = 0;
+            var j = from + 1 - suffix.Length;
+
+            while (i < suffix.Length)
+                if (suffix[i++] != self[j++])
+                    return false;
+
+            return true;
         }
 
         /// <summary>
-        ///     Removes trailing occurrences of the specified suffixes from the builder
+        ///     Returns the last index that indicates how far the character would have been trimmed.
+        /// </summary>
+        public int TrimEndIndex(char character, int until)
+        {
+            var index = self.Length - 1;
+
+            while (index >= until && index >= 0 && self[index] == character)
+                index--;
+
+            return index;
+        }
+
+        /// <summary>
+        ///     Removes trailing occurrences of the suffix from the builder
         ///     the provided number of times.
         /// </summary>
-        public StringBuilder TrimEnd(string[] suffixes, int count)
+        public StringBuilder TrimEnd(string suffix, int count)
         {
             while (--count >= 0)
             {
-                foreach (var suffix in suffixes)
+                if (self.EndsWith(suffix))
                 {
-                    if (self.EndsWith(suffix))
-                    {
-                        self.Length -= suffix.Length;
-                        break;
-                    }
+                    self.Length -= suffix.Length;
+                    break;
                 }
             }
 
