@@ -5,7 +5,4 @@ internal record struct ContextDefinition(
     string? Namespace,
     List<string>? Containers,
     string Name,
-    string? Interface)
-{
-    
-}
+    string? Interface);

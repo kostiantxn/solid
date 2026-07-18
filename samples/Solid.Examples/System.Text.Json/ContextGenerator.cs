@@ -1,6 +1,5 @@
 ﻿using Solid.Examples.System.Text.Json.Models;
 using Solid.Templates;
-using Solid.Templates.Controls;
 using static Solid.Templates.Controls.Fluent;
 
 namespace Solid.Examples.System.Text.Json;
@@ -85,6 +84,30 @@ internal static class ContextGenerator
                       global::System.Reflection.BindingFlags.Instance |
                       global::System.Reflection.BindingFlags.Public |
                       global::System.Reflection.BindingFlags.NonPublic;
+
+                  {{If(context.Options.EmitValueTypeSetterDelegate)}}
+                  private delegate void ValueTypeSetter<TDeclaringType, TValue>(ref TDeclaringType obj, TValue value);
+
+                  {{End}}
+                  /// <summary>
+                  /// The default <see cref="{{Types.JsonSerializerOptions}}"/> associated with a default <see cref="{{Types.JsonSerializerOptions}}"/> instance.
+                  /// </summary>
+                  public static {{context.Name}} Default { get; } = new {{context.Name}}(new {{Types.JsonSerializerOptions}}(s_defaultOptions));
+
+                  /// <summary>
+                  /// The source-generated options associated with this context.
+                  /// </summary>
+                  protected override {{Types.JsonSerializerOptions}}? GeneratedSerializerOptions { get; } = s_defaultOptions;
+
+                  /// <inheritdoc/>
+                  public {{context.Name}}() : base(null)
+                  {
+                  }
+
+                  /// <inheritdoc/>
+                  public {{context.Name}}({{Types.JsonSerializerOptions}} options) : base(options)
+                  {
+                  }
               }
               """);
     }
