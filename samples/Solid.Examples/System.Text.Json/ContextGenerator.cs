@@ -5,6 +5,18 @@ using static Solid.Templates.Controls.Fluent;
 
 namespace Solid.Examples.System.Text.Json;
 
+/// <summary>
+///     Demonstrates how <c>Solid.Templates</c> could have been used in <c>System.Text.Json</c>.
+///     <para/>
+///     The example below tries to replicate the behavior of
+///     <a href="https://github.com/dotnet/runtime/blob/6bd973a541700487cb4a1891943c2a7a55e4c956/src/libraries/System.Text.Json/gen/JsonSourceGenerator.Emitter.cs">
+///     <c>JsonSourceGenerator.Emitter</c>
+///     </a>
+///     (as of commit
+///     <a href="https://github.com/dotnet/runtime/commit/6bd973a541700487cb4a1891943c2a7a55e4c956">
+///     <c>6bd973a</c>
+///     </a>).
+/// </summary>
 internal static class ContextGenerator
 {
     public static Code Generate(ContextDefinition context)
